@@ -34,6 +34,7 @@
 | 07 | 昭烈 | 刘备 | 三国 · 蜀汉 | `liubei-zhaolie-7` |
 | 08 | 河阴 | 尔朱荣 | 北朝 · 北魏 | `erzhu-heyin-8` |
 | 09 | 轮台 | 刘彻 | 西汉 | `hanwudi-luntai-9` |
+| 10 | 烏臺 | 苏轼 | 北宋 | `sushi-wutai-10` |
 
 ---
 
@@ -78,7 +79,7 @@ tar 管道上传到 /usr/share/nginx/html/history-magazine/
 1. 本地生成单期工程 → 产出 `index.html` 单文件 + 封面缩略图；
 2. 把单期放进 `<slug>/index.html`；
 3. 重跑刊库首页生成脚本（按朝代分组、排序、分页全自动）；
-4. `git add -A && git commit -m "第 10 期《XX》· XXX" && git push`；
+4. `git add -A && git commit -m "第 11 期《XX》· XXX" && git push`；
 5. 等 Actions 变绿 —— sha1 比对不过就是红的。
 
 ## 校验哲学
