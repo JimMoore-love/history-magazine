@@ -35,6 +35,7 @@
 | 08 | 河阴 | 尔朱荣 | 北朝 · 北魏 | `erzhu-heyin-8` |
 | 09 | 轮台 | 刘彻 | 西汉 | `hanwudi-luntai-9` |
 | 10 | 烏臺 | 苏轼 | 北宋 | `sushi-wutai-10` |
+| 11 | 藍關 | 韩愈 | 唐 | `hanyu-languan-11` |
 
 ---
 
