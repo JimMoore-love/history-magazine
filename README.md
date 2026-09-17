@@ -36,6 +36,8 @@
 | 09 | 轮台 | 刘彻 | 西汉 | `hanwudi-luntai-9` |
 | 10 | 烏臺 | 苏轼 | 北宋 | `sushi-wutai-10` |
 | 11 | 藍關 | 韩愈 | 唐 | `hanyu-languan-11` |
+| 12 | 沙丘 | 秦始皇 | 秦 | `shihuang-shaqiu-12` |
+| 13 | 朱仙 | 岳飞 | 南宋 | `yuefei-zhuxian-13` |
 
 ---
 
