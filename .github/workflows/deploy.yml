@@ -60,30 +60,44 @@ jobs:
 
       - name: 服务器端 sha1 逐文件比对
         run: |
-          set -e
+          set -euo pipefail
+          # 文件清单是「多行」，绝不能直接塞进 ssh 的双引号命令里——
+          # 远端会把第 2 行起当成命令执行（实测报 "Permission denied"）。
+          # 正确做法：清单走 stdin，两端都用 xargs sha1sum。
           FILES=$(find . -type f \( -name 'index.html' -o -name '_home.tpl.html' \) \
                   | sed 's|^\./||' | sort)
-          echo "$FILES" | sed 's/^/  /'
-          sha1sum $FILES > /tmp/local_sha1.txt
-          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
-            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
-            "cd ${{ secrets.DEPLOY_PATH }} && sha1sum $FILES" > /tmp/remote_sha1.txt
+          echo "待校验文件（$(printf '%s\n' "$FILES" | wc -l) 个）："
+          printf '%s\n' "$FILES" | sed 's/^/  /'
+          printf '%s\n' "$FILES" | xargs sha1sum > /tmp/local_sha1.txt
+          printf '%s\n' "$FILES" \
+            | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+                "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+                "cd ${{ secrets.DEPLOY_PATH }} && xargs sha1sum" > /tmp/remote_sha1.txt
           echo "--- 本地 ---"; cat /tmp/local_sha1.txt
           echo "--- 线上 ---"; cat /tmp/remote_sha1.txt
           if diff -u /tmp/local_sha1.txt /tmp/remote_sha1.txt; then
-            echo "✅ sha1 全部一致（$(wc -l < /tmp/local_sha1.txt) 个文件）"
+            echo "✅ 服务器端 sha1 与本仓库逐文件一致（$(wc -l < /tmp/local_sha1.txt) 个文件）"
           else
-            echo "❌ sha1 不一致，部署视为失败"; exit 1
+            echo "❌ sha1 不一致：文件已上传但内容与仓库不符，必须人工介入"
+            exit 1
           fi
 
       - name: 公网实测
         run: |
-          set -e
+          set -euo pipefail
           B="http://${{ secrets.DEPLOY_HOST }}/history-magazine"
-          for U in "$B/" "$B/$(ls -d */ | sed 's|/||' | sort | tail -1)/"; do
-            printf '%-70s ' "$U"
-            curl -s -o /dev/null -w "%{http_code}\n" "$U"
+          FAIL=0
+          check() {
+            OUT=$(curl -s -o /dev/null -w "%{http_code} %{size_download}" "$1")
+            CODE=${OUT%% *}; SIZE=${OUT##* }
+            printf '  %s  %9s bytes  %s\n' "$CODE" "$SIZE" "$1"
+            [ "$CODE" = "200" ] || FAIL=1
+          }
+          for D in $(ls -d */ | sed 's|/$||' | grep -- '-[0-9]\+$' | sort); do
+            check "$B/$D/"
           done
+          check "$B/"
+          [ "$FAIL" = "0" ] && echo "✅ 首页与全部期数均返回 200" || { echo "❌ 有 URL 非 200"; exit 1; }
 
       - name: 汇总
         run: |
