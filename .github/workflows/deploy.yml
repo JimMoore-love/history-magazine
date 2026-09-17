@@ -1,0 +1,94 @@
+name: Deploy 到 ali-claw
+
+# 推送即上线：任何一次 push 到 main 都会先备份线上、再上传、最后用服务器端
+# sha1sum 逐文件比对（不信 scp/ssh 的退出码）。
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-history-magazine
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: 备份 → 上传 → 服务器端校验
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 配置 SSH
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          for i in 1 2 3; do
+            ssh-keyscan -T 10 -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null && break
+            echo "keyscan 第 $i 次失败，重试…"; sleep 3
+          done
+          echo "known_hosts 行数: $(wc -l < ~/.ssh/known_hosts)"
+
+      - name: 连通性自检
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "echo SSH_OK; whoami; ls -d ${{ secrets.DEPLOY_PATH }}"
+
+      - name: 上传前备份线上
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "mkdir -p /root/hm-backup && TS=\$(date +%Y%m%d-%H%M%S) && \
+             tar czf /root/hm-backup/history-magazine-\$TS.tgz \
+               -C $(dirname ${{ secrets.DEPLOY_PATH }}) $(basename ${{ secrets.DEPLOY_PATH }}) && \
+             echo 备份完成 /root/hm-backup/history-magazine-\$TS.tgz && \
+             ls -la /root/hm-backup/ | tail -3"
+
+      - name: 上传站点
+        run: |
+          set -e
+          tar cz --exclude=.git --exclude=.github --exclude=README.md . | \
+            ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+              "cd ${{ secrets.DEPLOY_PATH }} && tar xz && echo UPLOAD_OK"
+
+      - name: 服务器端 sha1 逐文件比对
+        run: |
+          set -e
+          FILES=$(find . -type f \( -name 'index.html' -o -name '_home.tpl.html' \) \
+                  | sed 's|^\./||' | sort)
+          echo "$FILES" | sed 's/^/  /'
+          sha1sum $FILES > /tmp/local_sha1.txt
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "cd ${{ secrets.DEPLOY_PATH }} && sha1sum $FILES" > /tmp/remote_sha1.txt
+          echo "--- 本地 ---"; cat /tmp/local_sha1.txt
+          echo "--- 线上 ---"; cat /tmp/remote_sha1.txt
+          if diff -u /tmp/local_sha1.txt /tmp/remote_sha1.txt; then
+            echo "✅ sha1 全部一致（$(wc -l < /tmp/local_sha1.txt) 个文件）"
+          else
+            echo "❌ sha1 不一致，部署视为失败"; exit 1
+          fi
+
+      - name: 公网实测
+        run: |
+          set -e
+          B="http://${{ secrets.DEPLOY_HOST }}/history-magazine"
+          for U in "$B/" "$B/$(ls -d */ | sed 's|/||' | sort | tail -1)/"; do
+            printf '%-70s ' "$U"
+            curl -s -o /dev/null -w "%{http_code}\n" "$U"
+          done
+
+      - name: 汇总
+        run: |
+          echo "### ✅ 部署完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 提交: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 远端: \`${{ secrets.DEPLOY_PATH }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- 期数: $(ls -d */ | sed 's|/||' | grep -c -- -[0-9]*$)" >> $GITHUB_STEP_SUMMARY

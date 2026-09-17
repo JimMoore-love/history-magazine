@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>《列传》· 中国历史人物志</title>
+<meta name="description" content="__DESC__">
+<style>
+:root{
+  --paper:#f4efe3;--ink:#241f19;--ink-2:#4a423a;--ink-3:#7d7368;
+  --red:#9c3b22;--red-2:#b8492c;--gold:#a8853f;--line:#dbcfb8;--line-2:#c8b99e;
+  --song:"Songti SC","SimSun","Noto Serif SC",serif;
+  --hei:"Songti SC","Source Han Serif SC","Microsoft YaHei","PingFang SC",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  background-image:
+    radial-gradient(1100px 560px at 50% -12%,#fffdf7 0%,rgba(255,253,247,0) 62%),
+    repeating-linear-gradient(0deg,rgba(140,120,90,.035) 0 1px,transparent 1px 3px);
+  color:var(--ink);font-family:var(--hei);-webkit-font-smoothing:antialiased;line-height:1.85;
+}
+.wrap{max-width:1040px;margin:0 auto;padding:60px 24px 96px}
+
+/* 刊头 */
+.rule{height:2px;background:linear-gradient(90deg,transparent,var(--red) 12%,var(--red) 88%,transparent);opacity:.85}
+.rule.thin{height:1px;background:var(--line-2);opacity:.7}
+.brand{display:flex;align-items:flex-end;gap:22px;margin:26px 0 6px;flex-wrap:wrap}
+.logo{font-family:var(--song);font-size:76px;line-height:.95;letter-spacing:.1em;font-weight:700;color:var(--ink)}
+.logo span{color:var(--red)}
+.brand-meta{padding-bottom:9px}
+.brand-meta .cn{font-size:15px;letter-spacing:.42em;color:var(--ink-2)}
+.brand-meta .en{font-family:var(--song);font-size:10.5px;letter-spacing:.16em;color:var(--ink-3);margin-top:7px}
+.lead{font-family:var(--song);font-size:21px;line-height:1.75;color:var(--ink-2);margin:30px 0 8px;max-width:30em}
+.lead em{font-style:normal;color:var(--red);border-bottom:1px solid rgba(156,59,34,.35);padding-bottom:1px}
+
+/* 分类标题 */
+.sec{
+  font-family:var(--song);font-size:14px;letter-spacing:.34em;color:var(--ink-3);
+  margin:58px 0 20px;display:flex;align-items:center;gap:16px;font-weight:400;
+}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* 朝代筛选条 */
+.facet{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 22px}
+.chip{
+  font-family:var(--hei);font-size:13px;letter-spacing:.05em;color:var(--ink-2);
+  background:#fffdf7;border:1px solid var(--line-2);padding:7px 15px;border-radius:2px;
+  cursor:pointer;transition:.25s;display:inline-flex;align-items:center;gap:8px;line-height:1.4;
+}
+.chip:hover{border-color:var(--red-2);color:var(--red)}
+.chip.on{background:var(--red);border-color:var(--red);color:#fffdf7}
+.chip i{font-style:normal;font-size:11px;opacity:.7;letter-spacing:0}
+.chip.on i{opacity:.9}
+
+/* 统计条 */
+.metabar{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;
+  margin:0 0 30px;padding:12px 0 0;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--ink-3);letter-spacing:.05em;
+}
+.metabar b{color:var(--red);font-weight:600}
+.metabar span.dim{color:#9c9184}
+
+/* 朝代分节 */
+.dsec{margin:0 0 42px}
+.dsec-h{
+  display:flex;align-items:baseline;gap:15px;flex-wrap:wrap;
+  padding:14px 0 11px;border-top:2px solid var(--ink);margin-bottom:22px;
+}
+.dsec-h .dn{font-family:var(--song);font-size:26px;font-weight:700;letter-spacing:.14em;color:var(--ink);line-height:1}
+.dsec-h .sp{font-size:11px;letter-spacing:.12em;color:var(--gold);border:1px solid rgba(168,133,63,.45);padding:2px 9px;border-radius:2px}
+.dsec-h .dc{font-size:12px;color:var(--ink-3);letter-spacing:.1em;margin-left:auto}
+
+/* 期次卡片 */
+.issue{
+  display:grid;grid-template-columns:40% 1fr;gap:0;
+  background:#fffdf7;border:1px solid var(--line);
+  text-decoration:none;color:inherit;margin-bottom:26px;
+  box-shadow:0 18px 40px -30px rgba(60,45,25,.9);
+  transition:transform .35s cubic-bezier(.22,.61,.36,1),box-shadow .35s,border-color .35s;
+  overflow:hidden;
+}
+.issue:hover{transform:translateY(-4px);border-color:var(--red-2);box-shadow:0 26px 52px -30px rgba(60,45,25,.95)}
+.thumb{position:relative;background:#efe7d7;border-right:1px solid var(--line)}
+.thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.thumb::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 8px rgba(255,255,255,.35);pointer-events:none}
+.issue .body{padding:30px 30px 28px}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.no{font-family:var(--hei);font-size:11.5px;letter-spacing:.22em;color:var(--red)}
+.date{font-size:11.5px;letter-spacing:.14em;color:var(--ink-3)}
+.tag{font-size:10.5px;letter-spacing:.18em;color:var(--gold);border:1px solid rgba(168,133,63,.45);padding:2px 9px;border-radius:2px}
+.series{font-family:var(--song);font-size:12.5px;letter-spacing:.2em;color:var(--gold);margin:-4px 0 8px}
+.issue h3{font-family:var(--song);font-size:44px;line-height:1.1;margin:2px 0 6px;letter-spacing:.06em}
+.issue .sub{font-family:var(--song);font-size:13px;color:var(--ink-3);letter-spacing:.12em;margin-bottom:16px}
+.issue p.desc{font-size:15px;color:var(--ink-2);margin:0 0 18px}
+.toc{list-style:none;margin:0 0 20px;padding:16px 0 0;border-top:1px solid var(--line)}
+.toc li{font-size:13.5px;color:var(--ink-2);line-height:2}
+.toc li b{color:var(--red);font-weight:600;margin-right:8px;letter-spacing:.1em}
+.go{display:inline-block;font-family:var(--hei);font-size:13px;letter-spacing:.16em;color:#fffdf7;background:var(--red);padding:9px 20px;border-radius:2px;transition:.3s}
+.issue:hover .go{background:var(--red-2)}
+.empty{padding:50px 0;text-align:center;font-family:var(--song);font-size:15px;color:var(--ink-3);letter-spacing:.2em}
+
+/* 分页 */
+.pager{display:flex;justify-content:center;align-items:center;gap:8px;margin:46px 0 0;flex-wrap:wrap;min-height:0}
+.pager button{
+  font-family:var(--hei);font-size:13px;letter-spacing:.06em;min-width:40px;height:38px;padding:0 13px;
+  background:#fffdf7;border:1px solid var(--line-2);color:var(--ink-2);cursor:pointer;
+  border-radius:2px;transition:.25s;
+}
+.pager button:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.pager button.on{background:var(--red);border-color:var(--red);color:#fffdf7;cursor:default}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager .pinfo{font-size:12.5px;color:var(--ink-3);letter-spacing:.08em;margin-left:8px}
+
+/* 筹备中 */
+.soon-strip{
+  margin-top:40px;padding:18px 22px;background:#fffdf7;border:1px dashed var(--line-2);
+  font-size:13px;color:var(--ink-3);letter-spacing:.05em;text-align:center;line-height:1.9;
+}
+.soon-strip b{color:var(--red);font-weight:600}
+
+/* 页脚 */
+footer{margin-top:70px}
+footer p{font-size:12.5px;color:var(--ink-3);margin:16px 0 0;letter-spacing:.03em}
+footer p.dim{color:#9c9184;font-size:11.5px}
+
+@media (max-width:820px){
+  .wrap{padding:40px 16px 70px}
+  .logo{font-size:56px}
+  .lead{font-size:18px}
+  .issue{grid-template-columns:1fr}
+  .thumb{border-right:0;border-bottom:1px solid var(--line);aspect-ratio:3/2}
+  .issue .body{padding:22px 20px 24px}
+  .issue h3{font-size:34px}
+  .sec{margin-top:44px}
+  .dsec-h .dn{font-size:22px}
+  .dsec-h .dc{margin-left:0;width:100%}
+  .pager{gap:6px}
+  .pager button{min-width:36px;height:36px;padding:0 10px;font-size:12.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="rule"></div>
+    <div class="brand">
+      <div class="logo">列<span>传</span></div>
+      <div class="brand-meta">
+        <div class="cn">中国历史人物志</div>
+        <div class="en">LIEZHUAN &middot; A JOURNAL OF CHINESE LIVES</div>
+      </div>
+    </div>
+    <p class="lead">每期只讲一个人，每期换一套版式。<br>从他身上，看清<em>一个转折</em>是怎样发生的。</p>
+    <div class="rule thin" style="margin-top:34px"></div>
+  </header>
+
+  <section>
+    <h2 class="sec">按 朝 代 浏 览</h2>
+    <div class="facet" id="facet"><!--FACET--></div>
+    <div class="metabar" id="metabar"><!--META--></div>
+    <div id="list"><!--LIST--></div>
+    <nav class="pager" id="pager" aria-label="分页"></nav>
+
+    <div class="soon-strip">
+      第 <b>06</b> 期筹备中 —— 仍从一个具体人物切入，沿用「史料 + 图表 + 想象图」的体例，每期换一套版式。<br>
+      想读哪个朝代、哪个人，可以点名下期。
+    </div>
+  </section>
+
+  <footer>
+    <div class="rule thin"></div>
+    <p>《列传》刊库 &middot; 纯静态单文件 &middot; 手机可直接阅读，电脑上 Ctrl+P 可导出 PDF</p>
+    <p class="dim"><!--FOOT--></p>
+  </footer>
+
+</div>
+<script>
+(function(){
+  "use strict";
+  var PER_PAGE = 3;
+  var list = document.getElementById("list");
+  var facet = document.getElementById("facet");
+  var pager = document.getElementById("pager");
+  var metabar = document.getElementById("metabar");
+  if(!list || !facet || !pager) return;
+
+  /* 1) 从静态 DOM 里读取全部数据（无 JS 时这段不执行，整份列表照常显示） */
+  var DYS = [], ALL = [], MAP = {};
+  var secs = list.querySelectorAll(".dsec");
+  for(var i=0;i<secs.length;i++){
+    var s = secs[i];
+    var key = s.getAttribute("data-dy");
+    var head = s.querySelector(".dsec-h");
+    var cards = s.querySelectorAll(".issue");
+    var arr = [];
+    for(var j=0;j<cards.length;j++){
+      var html = cards[j].outerHTML;
+      arr.push(html);
+      ALL.push({dy:key, html:html});
+    }
+    var d = {
+      key:key,
+      name:s.getAttribute("data-name") || key,
+      head: head ? head.outerHTML : '<div class="dsec-h"><span class="dn">'+key+'</span></div>',
+      cards:arr
+    };
+    DYS.push(d); MAP[key] = d;
+  }
+  if(!ALL.length) return;
+
+  var state = {dy:"all", page:1};
+
+  function items(){
+    if(state.dy === "all") return ALL;
+    var r = [];
+    for(var i=0;i<ALL.length;i++) if(ALL[i].dy === state.dy) r.push(ALL[i]);
+    return r;
+  }
+  function pages(t){ return Math.max(1, Math.ceil(t.length / PER_PAGE)); }
+
+  function renderFacet(){
+    var h = ['<button type="button" class="chip'+(state.dy==="all"?" on":"")+'" data-dy="all">全部 <i>'+ALL.length+'</i></button>'];
+    for(var i=0;i<DYS.length;i++){
+      var d = DYS[i];
+      h.push('<button type="button" class="chip'+(state.dy===d.key?" on":"")+'" data-dy="'+d.key+'">'+d.name+' <i>'+d.cards.length+'</i></button>');
+    }
+    facet.innerHTML = h.join("");
+  }
+  function renderMeta(){
+    metabar.innerHTML = '共 <b>'+ALL.length+'</b> 期 &middot; <b>'+DYS.length+'</b> 个朝代'
+      + ' &nbsp;|&nbsp; 依朝代先后排列 &nbsp;|&nbsp; <span class="dim">每页 '+PER_PAGE+' 期</span>';
+  }
+  function renderList(t){
+    var buf = [], open = false, last = null, start = (state.page-1)*PER_PAGE;
+    var slice = t.slice(start, start+PER_PAGE);
+    if(!slice.length){ list.innerHTML = '<div class="empty">本朝代暂无已出期次</div>'; return; }
+    for(var i=0;i<slice.length;i++){
+      var it = slice[i];
+      if(it.dy !== last){
+        if(open) buf.push("</section>");
+        buf.push('<section class="dsec">' + MAP[it.dy].head);
+        open = true; last = it.dy;
+      }
+      buf.push(it.html);
+    }
+    if(open) buf.push("</section>");
+    list.innerHTML = buf.join("");
+  }
+  function renderPager(t){
+    var tp = pages(t);
+    if(tp <= 1){ pager.innerHTML = ""; return; }
+    var h = ['<button type="button" data-go="prev"'+(state.page<=1?" disabled":"")+'>&lsaquo; 上一页</button>'];
+    for(var i=1;i<=tp;i++) h.push('<button type="button" data-go="'+i+'"'+(i===state.page?' class="on"':"")+'>'+i+'</button>');
+    h.push('<button type="button" data-go="next"'+(state.page>=tp?" disabled":"")+'>下一页 &rsaquo;</button>');
+    h.push('<span class="pinfo">第 '+state.page+' / '+tp+' 页</span>');
+    pager.innerHTML = h.join("");
+  }
+  function render(scroll){
+    var t = items();
+    if(state.page > pages(t)) state.page = pages(t);
+    if(state.page < 1) state.page = 1;
+    renderFacet(); renderMeta(); renderList(t); renderPager(t);
+    if(scroll && facet.getBoundingClientRect){
+      var r = facet.getBoundingClientRect();
+      var y = r.top + (window.pageYOffset||0) - 24;
+      try{ window.scrollTo({top:y, behavior:"smooth"}); }catch(e){ window.scrollTo(0,y); }
+    }
+  }
+  facet.addEventListener("click", function(e){
+    var b = e.target;
+    while(b && b !== facet && !(b.getAttribute && b.getAttribute("data-dy"))) b = b.parentNode;
+    if(!b || !b.getAttribute || !b.getAttribute("data-dy")) return;
+    var dy = b.getAttribute("data-dy");
+    if(dy === state.dy) return;
+    state.dy = dy; state.page = 1; render(true);
+  });
+  pager.addEventListener("click", function(e){
+    var b = e.target;
+    while(b && b !== pager && !(b.getAttribute && b.getAttribute("data-go"))) b = b.parentNode;
+    if(!b || !b.getAttribute) return;
+    var g = b.getAttribute("data-go");
+    if(!g || b.disabled) return;
+    var tp = pages(items());
+    if(g === "prev") state.page--;
+    else if(g === "next") state.page++;
+    else state.page = parseInt(g, 10) || 1;
+    if(state.page < 1) state.page = 1;
+    if(state.page > tp) state.page = tp;
+    render(true);
+  });
+  render(false);
+})();
+</script>
+</body>
+</html>
